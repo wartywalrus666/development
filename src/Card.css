@@ -1,0 +1,33 @@
+.Card {
+  text-align: left;
+}
+
+.Card-border {
+  height: 600px;
+  width: 500px;
+  background-color: white;
+}
+
+.Card-colour {
+  height: 400px;
+  width: 500px;
+}
+
+.Card-text {
+  padding-left: 20px;
+}
+
+h1 {
+  color: black;
+  font-family: arial;
+  font-weight: bolder;
+  font-size: 50px;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+
+p {
+  color: black;
+  margin-top: 0;
+  font-size: 24px;
+}
