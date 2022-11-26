@@ -8,71 +8,145 @@ function App() {
   /*** defining colours ***/
 
   const colours = {
-    'lightpink': ['reds'],
-    'lightblue': ['blues'],
-    'rosybrown': ['reds'],
-    'khaki': ['yellows'],
-    'lavender': ['blues'],
-    'beige': ['yellows'],
-    'rebeccapurple': ['blues'],
-    'orange': ['yellows'],
-    'darkolivegreen': ['greens'],
-    'darkslategrey': ['greens', 'blues'],
-    'forestgreen': ['greens'],
-    'olive': ['greens', 'yellows']
+    '#8c8b75': ['greens'],
+    '#232620': ['blues', 'greens'],
+    '#edf1f0': ['blues', 'greens'],
+    '#5c331d': ['reds'],
+    '#d6ba8d': ['yellows'],
+    '#b7c8ad': ['greens'],
+    '#795842': ['reds'],
+    '#55615b': ['blues', 'greens'],
+    '#a7b3ab': ['blues', 'greens'],
+    '#0c361e': ['greens'],
+    '#5a6f4a': ['greens'],
+    '#223f49': ['blues'],
+    '#8a957e': ['greens'],
+    '#a78781': ['reds'],
+    '#b5bfc9': ['blues'],
+    '#7395a0': ['blues']
   };
 
   const [allCards, setAllCards] = useState([]); // only populated once
-  const [cards, setCards] = useState([]);
+  const [unsorted, setUnsorted] = useState([]);
+  const [cards, setCards] = useState([]); // card to show
 
+  const [likes, setLikes] = useState([]);
+  const [saved, setSaved] = useState([]);
+  const [filters, setFilters] = useState([]);
+  const [satSort, setSatSort] = useState(false);
+  const [totalSat, setTotalSat] = useState(0);
+  const [avgSat, setAvgSat] = useState(0);
+
+  // load all cards
   useEffect(() => {
     const cardsTemp = [];
     for (let c in colours) {
+      let s = getSaturation(c);
       cardsTemp.push(
         <div className='App-card'>
-          <Card colour={c} name={c} key={c} filters={colours[c]} />
+          <Card colour={c} name={c} key={c} saturation={s} filters={colours[c]} />
         </div>
       )
     }
     setAllCards(cardsTemp);
-  }, []);
+  }, [likes]);
+
+  function getSaturation(hex) {
+    let r = 0, g = 0, b = 0;
+    r = "0x" + hex[1] + hex[2];
+    g = "0x" + hex[3] + hex[4];
+    b = "0x" + hex[5] + hex[6];
+
+    r /= 255;
+    g /= 255;
+    b /= 255;
+    let cmin = Math.min(r, g, b),
+      cmax = Math.max(r, g, b),
+      delta = cmax - cmin,
+      s = 0, l = 0;
+    l = (cmax + cmin) / 2;
+    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    s = +(s * 100).toFixed(1);
+    // console.log(s)
+    return s
+  }
 
   /*** FILTERING ***/
 
-  const [filters, setFilters] = useState([]);
-
-  function toggle(colour) {
-    // if colour in filters, remove
-    if (filters.includes(colour)) {
-      setFilters(filters.filter(f => f !== colour));
+  function toggle(elt, arr, setter) {
+    // if elt in list, remove
+    if (arr.includes(elt)) {
+      console.log('delete')
+      setter(arr.filter(f => f !== elt));
     } else { // else add to arr
-      setFilters([colour].concat(filters));
+      console.log('concat')
+      setter([elt].concat(arr));
     }
   }
 
+  function sortbySat() {
+    if (satSort === false) {
+      setSatSort(true);
+    } else {
+      setSatSort(false);
+    }
+    console.log('satsort:', satSort)
+  }
+
   useEffect(() => {
+    console.log('filters', filters)
     if (filters.length === 0) {
       setCards(allCards);
     } else {
       const cardsTemp = [];
-      for (let c in colours) {
-        for (let f of colours[c]) {
-          // console.log(filters, colours[c][f])
-          if (filters.includes(f)) {
-            console.log('hooray!');
-            cardsTemp.push(
-              <div className='App-card'>
-                <Card colour={c} name={c} key={c} filters={colours[c]} />
-              </div>
-            )
+      for (let c of allCards) {
+        let cardColours = c.props.children.props.filters; // colour groups card falls under
+        for (let cc of cardColours) {
+          if (filters.includes(cc)) {
+            cardsTemp.push(c);
             break;
           }
         }
       }
       setCards(cardsTemp);
-      console.log(cardsTemp);
     }
-  }, [filters]);
+  }, [filters, allCards]);
+
+  // sort
+  useEffect(() => {
+    if (satSort === true) {
+      setUnsorted(cards);
+      const sorted = cards.sort(
+        function (a, b) {
+          return a.props.children.props.saturation - b.props.children.props.saturation;
+        }
+      );
+      setCards(sorted);
+    } else {
+      setCards(unsorted);
+    }
+  }, [satSort]);
+
+  // // save card
+  useEffect(() => {
+    let temp = [];
+    let ts = 0;
+    for (let l of likes) {
+      ts += getSaturation(l);
+      temp.push(
+        <li>
+          {l}
+        </li>
+      )
+    }
+    setSaved(temp);
+    setTotalSat(ts);
+    if (ts !== 0) {
+      setAvgSat(ts / (likes.length));
+    } else {
+      setAvgSat(0);
+    }
+  }, [likes, allCards]);
 
   function Card(props) {
     return (
@@ -86,25 +160,37 @@ function App() {
             <p>
               {props.name}
             </p>
+            <p>
+              Saturation: {props.saturation}%
+              <button onClick={() => toggle(props.name, likes, setLikes)}>{likes.includes(props.name) ? 'unlike' : 'like'}</button>
+            </p>
           </div>
         </div>
       </div>
     );
   }
 
-  // two filtering categories
-  // one sorting feature
   // aggregating section with value on each card
   return (
     <div className="App">
       <div className='App-buttons'>
-        <button onClick={() => toggle('reds')}><p>Filter Red</p></button>
-        <button onClick={() => toggle('blues')}><p>Filter Blue</p></button>
-        <button onClick={() => toggle('yellows')}><p>Filter Yellow</p></button>
-        <button onClick={() => toggle('greens')}><p>Filter Green</p></button>
+        <button onClick={() => toggle('reds', filters, setFilters)} style={{ 'backgroundColor': filters.includes('reds') ? 'grey' : 'white' }}><p>Filter Red</p></button>
+        <button onClick={() => toggle('blues', filters, setFilters)} style={{ 'backgroundColor': filters.includes('blues') ? 'grey' : 'white' }}><p>Filter Blue</p></button>
+        <button onClick={() => toggle('yellows', filters, setFilters)} style={{ 'backgroundColor': filters.includes('yellows') ? 'grey' : 'white' }}><p>Filter Yellow</p></button>
+        <button onClick={() => toggle('greens', filters, setFilters)} style={{ 'backgroundColor': filters.includes('greens') ? 'grey' : 'white' }}><p>Filter Green</p></button>
+
+        <button onClick={() => sortbySat()} style={{ 'backgroundColor': satSort ? 'grey' : 'white' }}><p>Sort by saturation</p></button>
       </div>
-      <div className='App-cards'>
-        {cards}
+      <div className='App-body'>
+        <div className='App-list'>
+          <h1>Saved</h1>
+          <h2>{saved.length !== 0 ? saved : 'like colours to add to saved list'}</h2>
+          <h2>Total saturation: {totalSat}</h2>
+          <h2>Average saturation: {avgSat}</h2>
+        </div>
+        <div className='App-cards'>
+          {cards}
+        </div>
       </div>
     </div>
   );

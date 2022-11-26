@@ -10,7 +10,10 @@ function Card(props) {
             PANTONE
           </h1>
           <p>
-            {props.name}
+            {props.name}!
+          </p>
+          <p>
+            {props.saturation}%
           </p>
         </div>
       </div>
