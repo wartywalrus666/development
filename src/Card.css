@@ -3,31 +3,40 @@
 }
 
 .Card-border {
-  height: 600px;
-  width: 500px;
+  height: 350px;
+  width: 250px;
   background-color: white;
 }
 
 .Card-colour {
-  height: 400px;
-  width: 500px;
+  height: 200px;
+  width: 250px;
 }
 
 .Card-text {
   padding-left: 20px;
 }
 
+.Card-button {
+  padding: 0
+}
+
 h1 {
+  margin-top: 1em;
   color: black;
   font-family: arial;
   font-weight: bolder;
-  font-size: 50px;
+  font-size: 24px;
   margin-bottom: 0;
   padding-bottom: 0;
+}
+
+h3 {
+  font-size: 12px;
 }
 
 p {
   color: black;
   margin-top: 0;
-  font-size: 24px;
+  font-size: 14px;
 }

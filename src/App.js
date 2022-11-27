@@ -27,11 +27,12 @@ function App() {
   };
 
   const [allCards, setAllCards] = useState([]); // only populated once
-  const [unsorted, setUnsorted] = useState([]);
   const [cards, setCards] = useState([]); // card to show
+  const [unsort, setUnsort] = useState(0);
 
   const [likes, setLikes] = useState([]);
   const [saved, setSaved] = useState([]);
+
   const [filters, setFilters] = useState([]);
   const [satSort, setSatSort] = useState(false);
   const [totalSat, setTotalSat] = useState(0);
@@ -84,15 +85,6 @@ function App() {
     }
   }
 
-  function sortbySat() {
-    if (satSort === false) {
-      setSatSort(true);
-    } else {
-      setSatSort(false);
-    }
-    console.log('satsort:', satSort)
-  }
-
   useEffect(() => {
     console.log('filters', filters)
     if (filters.length === 0) {
@@ -110,31 +102,31 @@ function App() {
       }
       setCards(cardsTemp);
     }
+    setSatSort(false);
   }, [filters, allCards]);
 
   // sort
   useEffect(() => {
+    console.log(satSort);
     if (satSort === true) {
-      setUnsorted(cards);
-      const sorted = cards.sort(
+      let sorted = [...cards];
+      sorted = sorted.sort(
         function (a, b) {
           return a.props.children.props.saturation - b.props.children.props.saturation;
         }
       );
       setCards(sorted);
-    } else {
-      setCards(unsorted);
     }
   }, [satSort]);
 
-  // // save card
+  // save card
   useEffect(() => {
     let temp = [];
     let ts = 0;
     for (let l of likes) {
       ts += getSaturation(l);
       temp.push(
-        <li>
+        <li style={{ 'fontSize': '12px' }}>
           {l}
         </li>
       )
@@ -146,7 +138,13 @@ function App() {
     } else {
       setAvgSat(0);
     }
-  }, [likes, allCards]);
+  }, [likes]);
+
+  function reset() {
+    setFilters([]);
+    setSatSort(false);
+    setLikes([]);
+  }
 
   function Card(props) {
     return (
@@ -162,7 +160,7 @@ function App() {
             </p>
             <p>
               Saturation: {props.saturation}%
-              <button onClick={() => toggle(props.name, likes, setLikes)}>{likes.includes(props.name) ? 'unlike' : 'like'}</button>
+              <button className='Card-button' onClick={() => toggle(props.name, likes, setLikes)}><h3>{likes.includes(props.name) ? 'unlike' : 'like'}</h3></button>
             </p>
           </div>
         </div>
@@ -174,25 +172,26 @@ function App() {
   return (
     <div className="App">
       <div className='App-buttons'>
-        <button onClick={() => toggle('reds', filters, setFilters)} style={{ 'backgroundColor': filters.includes('reds') ? 'grey' : 'white' }}><p>Filter Red</p></button>
-        <button onClick={() => toggle('blues', filters, setFilters)} style={{ 'backgroundColor': filters.includes('blues') ? 'grey' : 'white' }}><p>Filter Blue</p></button>
-        <button onClick={() => toggle('yellows', filters, setFilters)} style={{ 'backgroundColor': filters.includes('yellows') ? 'grey' : 'white' }}><p>Filter Yellow</p></button>
-        <button onClick={() => toggle('greens', filters, setFilters)} style={{ 'backgroundColor': filters.includes('greens') ? 'grey' : 'white' }}><p>Filter Green</p></button>
+        <button onClick={() => toggle('reds', filters, setFilters)} style={{ 'backgroundColor': filters.includes('reds') ? '#55615b' : 'white' }}><p>Filter Red</p></button>
+        <button onClick={() => toggle('blues', filters, setFilters)} style={{ 'backgroundColor': filters.includes('blues') ? '#55615b' : 'white' }}><p>Filter Blue</p></button>
+        <button onClick={() => toggle('yellows', filters, setFilters)} style={{ 'backgroundColor': filters.includes('yellows') ? '#55615b' : 'white' }}><p>Filter Yellow</p></button>
+        <button onClick={() => toggle('greens', filters, setFilters)} style={{ 'backgroundColor': filters.includes('greens') ? '#55615b' : 'white' }}><p>Filter Green</p></button>
 
-        <button onClick={() => sortbySat()} style={{ 'backgroundColor': satSort ? 'grey' : 'white' }}><p>Sort by saturation</p></button>
+        <button onClick={() => satSort === true ? setSatSort(false) : setSatSort(true)} style={{ 'backgroundColor': satSort === true ? '#55615b' : 'white' }}><p>Sort by saturation</p></button>
+        <button onClick={() => reset()}><p>Reset</p></button>
       </div>
       <div className='App-body'>
         <div className='App-list'>
           <h1>Saved</h1>
-          <h2>{saved.length !== 0 ? saved : 'like colours to add to saved list'}</h2>
-          <h2>Total saturation: {totalSat}</h2>
-          <h2>Average saturation: {avgSat}</h2>
+          <h3>{saved.length !== 0 ? saved : 'like colours to add to saved list'}</h3>
+          <p>Total saturation: {totalSat}</p>
+          <p>Average saturation: {avgSat}</p>
         </div>
         <div className='App-cards'>
           {cards}
         </div>
       </div>
-    </div>
+    </div >
   );
 }
 

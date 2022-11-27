@@ -39,11 +39,19 @@ button {
 }
 
 .App-list {
-  margin-top: 2em;
-  padding: 2em;
+  margin-top: 1em;
+  padding: 1.5em;
   background-color: white;
   margin-left: auto;
   margin-right: auto;
+}
+
+/* .App-button {
+  background-color: #55615b;
+} */
+
+.App-button p {
+  color: white;
 }
 
 h1 {
@@ -52,4 +60,8 @@ h1 {
 
 p {
   font-size: 18px;
+}
+
+button {
+  cursor: pointer;
 }
