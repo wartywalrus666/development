@@ -159,6 +159,7 @@ function App() {
               {props.name}
             </p>
             <p>
+              Filters: {props.filters}<br />
               Saturation: {props.saturation}%
               <button className='Card-button' onClick={() => toggle(props.name, likes, setLikes)}><h3>{likes.includes(props.name) ? 'unlike' : 'like'}</h3></button>
             </p>
@@ -182,7 +183,7 @@ function App() {
       </div>
       <div className='App-body'>
         <div className='App-list'>
-          <h1>Saved</h1>
+          <h1 className='App-h1'>Saved</h1>
           <h3>{saved.length !== 0 ? saved : 'like colours to add to saved list'}</h3>
           <p>Total saturation: {totalSat}</p>
           <p>Average saturation: {avgSat}</p>
