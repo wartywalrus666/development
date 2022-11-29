@@ -26,7 +26,6 @@ the reset button removes all filters, sorting, and liked colours.
 each colour card has a like button that can be clicked to add the colour to the saved list below the buttons. the colour can be unliked (the like button turns into an unlike button if the card is currently liked) to remove it from the saved list.
 
 ### Known bugs
-- when sort by saturation button is enabled, disabling it (clicking it again) does not unsort the cards
-- if liking a colour while sort by saturation is on, the colour is correctly added to saved list but the items list reverts to unsorted order
+- if liking a colour while sort by saturation is on, the colour is correctly added to saved list but sorting is turned off—the items list reverts to unsorted order
 
 
