@@ -28,7 +28,6 @@ function App() {
 
   const [allCards, setAllCards] = useState([]); // only populated once
   const [cards, setCards] = useState([]); // card to show
-  const [unsort, setUnsort] = useState(0);
 
   const [likes, setLikes] = useState([]);
   const [saved, setSaved] = useState([]);
@@ -66,7 +65,7 @@ function App() {
       delta = cmax - cmin,
       s = 0, l = 0;
     l = (cmax + cmin) / 2;
-    s = delta == 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
+    s = delta === 0 ? 0 : delta / (1 - Math.abs(2 * l - 1));
     s = +(s * 100).toFixed(1);
     // console.log(s)
     return s
@@ -77,45 +76,56 @@ function App() {
   function toggle(elt, arr, setter) {
     // if elt in list, remove
     if (arr.includes(elt)) {
-      console.log('delete')
       setter(arr.filter(f => f !== elt));
     } else { // else add to arr
-      console.log('concat')
       setter([elt].concat(arr));
     }
   }
 
+  function filterCards() {
+    const cardsTemp = [];
+    for (let c of allCards) {
+      let cardColours = c.props.children.props.filters; // colour groups card falls under
+      for (let cc of cardColours) {
+        if (filters.includes(cc)) {
+          cardsTemp.push(c);
+          break;
+        }
+      }
+    }
+    setCards(cardsTemp);
+  }
+
   useEffect(() => {
-    console.log('filters', filters)
     if (filters.length === 0) {
       setCards(allCards);
     } else {
-      const cardsTemp = [];
-      for (let c of allCards) {
-        let cardColours = c.props.children.props.filters; // colour groups card falls under
-        for (let cc of cardColours) {
-          if (filters.includes(cc)) {
-            cardsTemp.push(c);
-            break;
-          }
-        }
-      }
-      setCards(cardsTemp);
+      filterCards();
     }
     setSatSort(false);
   }, [filters, allCards]);
+
+  function sortCards() {
+    let sorted = [...cards];
+    sorted = sorted.sort(
+      function (a, b) {
+        return a.props.children.props.saturation - b.props.children.props.saturation;
+      }
+    );
+    setCards(sorted);
+  }
 
   // sort
   useEffect(() => {
     console.log(satSort);
     if (satSort === true) {
-      let sorted = [...cards];
-      sorted = sorted.sort(
-        function (a, b) {
-          return a.props.children.props.saturation - b.props.children.props.saturation;
-        }
-      );
-      setCards(sorted);
+      sortCards();
+    } else {
+      if (filters.length === 0) {
+        setCards(allCards);
+      } else {
+        filterCards();
+      }
     }
   }, [satSort]);
 
@@ -134,7 +144,7 @@ function App() {
     setSaved(temp);
     setTotalSat(ts);
     if (ts !== 0) {
-      setAvgSat(ts / (likes.length));
+      setAvgSat(Math.round(ts / (likes.length)) / 100);
     } else {
       setAvgSat(0);
     }
